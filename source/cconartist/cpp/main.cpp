@@ -29,7 +29,7 @@ typedef struct
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
-    buf->base = (char*)malloc(suggested_size);
+    buf->base = (char *)malloc(suggested_size);
     buf->len  = suggested_size;
 }
 
@@ -62,6 +62,8 @@ void on_tcp_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf)
             pkt->size               = nread;
             memcpy(pkt->data, buf->base, nread);
             channel_push(ctx->channel_packets_out, pkt);
+
+            printf("Received TCP packet from %s:%d, size: %zu\n", ip, port, pkt->size);
         }
         else
         {
@@ -119,7 +121,7 @@ void on_new_tcp_connection(uv_stream_t *server, int status)
 
 void start_tcp_server(server_context_t *ctx, int port)
 {
-    uv_tcp_t *server = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+    uv_tcp_t *server = (uv_tcp_t *)malloc(sizeof(uv_tcp_t));
     uv_tcp_init(ctx->loop, server);
     struct sockaddr_in addr;
     uv_ip4_addr("0.0.0.0", port, &addr);
@@ -148,6 +150,8 @@ void on_udp_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const str
             pkt->size = nread;
             memcpy(pkt->data, buf->base, nread);
             channel_push(ctx->channel_packets_out, pkt);
+
+            printf("Received UDP packet from %s:%d, size: %zu\n", ip, port, pkt->size);
         }
     }
     if (buf->base)
@@ -156,7 +160,7 @@ void on_udp_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const str
 
 void start_udp_server(server_context_t *ctx, int port)
 {
-    uv_udp_t *udp = (uv_udp_t*)malloc(sizeof(uv_udp_t));
+    uv_udp_t *udp = (uv_udp_t *)malloc(sizeof(uv_udp_t));
     uv_udp_init(ctx->loop, udp);
     struct sockaddr_in addr;
     uv_ip4_addr("0.0.0.0", port, &addr);
@@ -200,7 +204,7 @@ void on_async_send(uv_async_t *handle)
                     if (req)
                     {
                         // TODO also reuse uv_buf_t from a pool
-                        uv_buf_t buf = uv_buf_init((char*)malloc(pkt->size), pkt->size);
+                        uv_buf_t buf = uv_buf_init((char *)malloc(pkt->size), pkt->size);
                         memcpy(buf.base, pkt->data, pkt->size);
                         req->data = buf.base;
                         uv_write(req, (uv_stream_t *)pkt->conn->handle, &buf, 1, on_tcp_write_done);
@@ -269,8 +273,11 @@ int main()
     ctx.channel_packets_in  = &channel_packets_in;   // UI → Libuv
     ctx.conn_mgr            = &conn_mgr;             // Connection manager
     ctx.packet_pool         = packet_pool;           // Packet pool
-    ctx.udp_send_pool       = (udp_send_pool_t*)malloc(sizeof(udp_send_pool_t));
-    ctx.tcp_write_pool      = (tcp_write_pool_t*)malloc(sizeof(tcp_write_pool_t));
+    ctx.udp_send_pool       = (udp_send_pool_t *)malloc(sizeof(udp_send_pool_t));
+    ctx.tcp_write_pool      = (tcp_write_pool_t *)malloc(sizeof(tcp_write_pool_t));
+
+    send_pool_init(ctx.udp_send_pool);
+    write_pool_init(ctx.tcp_write_pool);
 
     uv_async_init(loop, &ctx.async_send, on_async_send);
     ctx.async_send.data = &ctx;
@@ -283,10 +290,18 @@ int main()
     int tcp_ports[] = {31330, 31372};
     int udp_ports[] = {31370, 31371};
 
+    printf("Starting servers...\n");
+
     for (int i = 0; i < (int)DARRAYSIZE(tcp_ports); i++)
+    {
+        printf("Starting TCP server on port %d\n", tcp_ports[i]);
         start_tcp_server(&ctx, tcp_ports[i]);
+    }
     for (int i = 0; i < (int)DARRAYSIZE(udp_ports); i++)
+    {
+        printf("Starting UDP server on port %d\n", udp_ports[i]);
         start_udp_server(&ctx, udp_ports[i]);
+    }
 
     uv_run(loop, UV_RUN_DEFAULT);
 
