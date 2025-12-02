@@ -2,39 +2,33 @@
 *
 !*/
 
+.vscode/
 vendor/
-t2-output/
 target/
 tags
 
 #except the following files
 !.gitignore
 !.clang-format
+
+# C/C++ source files
 !*.cpp
 !*.hpp
 !*.c
 !*.h
 !*.inl
 
+# Documentation and image files
 !*.md
 !*.png
 !*.svg
-!*.excalidraw
 !*.pdf
 
+# Configuration and script files
 !*.go
+!*.json
 
-!*.cs
-!*.csproj
-!*.resx
-
-!*.hlsl
-!*.fragment
-
-!*.mold
-!*.sc
-!*.diagram
-
+# Batch and ini files
 !*.ini
 !*.bat
 

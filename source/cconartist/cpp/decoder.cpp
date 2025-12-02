@@ -22,7 +22,7 @@ namespace ncore
         static bool has_so_extension(const char *filename)
         {
             const char *ext = strrchr(filename, '.');
-            return (ext && strcmp(ext, ".so") == 0);
+            return (ext && strcmp(ext, ".dylib") == 0);
         }
 
         static void on_fs_event(uv_fs_event_t *handle, const char *filename, int events, int status)
