@@ -2,29 +2,32 @@
 #define CHANNEL_H
 
 #include "clibuv/uv.h"
-#include <stddef.h>
 
-typedef struct node
+namespace ncore
 {
-    void        *data;
-    struct node *next;
-} node_t;
+    struct node_t
+    {
+        void   *data;
+        node_t *next;
+    };
 
-typedef struct
-{
-    uv_mutex_t mutex;
-    uv_cond_t  cond;
-    node_t    *head;
-    node_t    *tail;
-    node_t    *free_list;
-    node_t    *nodes;
-    size_t     size;
-    size_t     capacity;
-} channel_t;
+    struct channel_t
+    {
+        uv_mutex_t mutex;
+        uv_cond_t  cond;
+        node_t    *head;
+        node_t    *tail;
+        node_t    *free_list;
+        node_t    *nodes;
+        size_t     size;
+        size_t     capacity;
+    };
 
-int   channel_init(channel_t *ch, size_t capacity);
-void  channel_destroy(channel_t *ch);
-int   channel_push(channel_t *ch, void *data);
-void *channel_pop(channel_t *ch);
+    int   channel_init(channel_t *ch, size_t capacity);
+    void  channel_destroy(channel_t *ch);
+    int   channel_push(channel_t *ch, void *data);
+    void *channel_pop(channel_t *ch);
+
+}  // namespace ncore
 
 #endif
