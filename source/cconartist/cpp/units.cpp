@@ -1,8 +1,6 @@
 #include "cconartist/units.h"
 
-namespace ncore
-{
-    static const char *unitMap[] = {[UTemperature]         = "°C",
+static const char *sUnitsArray[] = {[UTemperature]         = "°C",
                                     [UFahrenheit]          = "°F",
                                     [UKelvin]              = "K",
                                     [UPressure]            = "hPa",
@@ -77,11 +75,10 @@ namespace ncore
                                     [UDetectedNotDetected] = "Detected/Not Detected",
                                     [UUnknown]             = "Unknown"};
 
-    inline const char *unitToString(EPropertyUnit unit)
-    {
-        if (unit >= 0 && unit < DARRAYSIZE(unitMap) && unitMap[unit] != nullptr)
-            return unitMap[unit];
-        return "";
-    }
-
-}  // namespace ncore
+const char *to_string(EPropertyUnit unit)
+{
+    const int unitMapSize = sizeof(sUnitsArray) / sizeof(sUnitsArray[0]);
+    if (unit >= 0 && unit < unitMapSize && sUnitsArray[unit] != nullptr)
+        return sUnitsArray[unit];
+    return "";
+}

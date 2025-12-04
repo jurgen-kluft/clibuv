@@ -1,4 +1,4 @@
-#include "cconartist/decoder.h"
+#include "cconartist/decoder_plugins.h"
 
 #include <dlfcn.h>
 #include <string.h>
@@ -54,6 +54,22 @@ namespace ncore
             uv_fs_event_start(&reg->m_fs_event, on_fs_event, reg->m_folder, 0);
 
             fprintf(stdout, "[Registry] Watching folder: %s\n", reg->m_folder);
+
+            // Initial manual load of plugins
+            DIR *dir = opendir(path_to_folder);
+            if (dir)
+            {
+                struct dirent *entry;
+                while ((entry = readdir(dir)) != nullptr)
+                {
+                    if (has_so_extension(entry->d_name))
+                    {
+                        load_plugin(reg, entry->d_name);
+                    }
+                }
+                closedir(dir);
+            }
+
             return reg;
         }
 
@@ -75,7 +91,7 @@ namespace ncore
 
             plugin_t *p = nullptr;
 
-            // Check if already loaded
+            // Check if already loaded before
             for (u32 i = 0; i < registry->m_plugin_count; ++i)
             {
                 if (strcmp(registry->m_plugins[i].m_name, filename) == 0)
@@ -116,12 +132,12 @@ namespace ncore
             }
 
             p->m_decode_fn = decode;
-            p->m_dlhandle    = handle;
+            p->m_dlhandle  = handle;
 
             return true;
         }
 
-        bool unload_plugin(registry_t *registry, const char* name)
+        bool unload_plugin(registry_t *registry, const char *name)
         {
             for (u32 i = 0; i < registry->m_plugin_count; ++i)
             {
@@ -138,7 +154,7 @@ namespace ncore
             return false;
         }
 
-        plugin_t* find_plugin(registry_t *registry, const char *name)
+        plugin_t *find_plugin(registry_t *registry, const char *name)
         {
             for (u32 i = 0; i < registry->m_plugin_count; ++i)
             {
@@ -150,5 +166,5 @@ namespace ncore
             return nullptr;
         }
 
-    }  // namespace nplugin
+    }  // namespace nplugins
 }  // namespace ncore

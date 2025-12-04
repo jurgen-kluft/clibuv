@@ -12,7 +12,8 @@ extern "C"
         decoder_property_t* prop = (decoder_property_t*)alloc_func(sizeof(decoder_property_t), alignof(decoder_property_t));
         prop->m_name             = "Temperature";
         prop->m_unit             = UTemperature;
-        prop->m_value            = 42.0;
+        prop->m_type             = PTDouble;
+        prop->m_value.m_double   = 42.0;
         *out_property_count += 1;
 
         out_properties = (decoder_property_t**)alloc_func(sizeof(decoder_property_t*) * (*out_property_count), alignof(decoder_property_t*));

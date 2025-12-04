@@ -23,14 +23,16 @@ extern "C"
         const unsigned char* ptr = data;
         const unsigned char* end = data + size;
 
-        decoder_property_t* properties = (decoder_property_t*)alloc_func(sizeof(decoder_property_t) * 16, alignof(decoder_property_t));
+        const int max_properties = 16;
+
+        decoder_property_t* properties = (decoder_property_t*)alloc_func(sizeof(decoder_property_t) * max_properties, alignof(decoder_property_t));
 
         while (ptr < end && (*ptr == ' ' || *ptr == '{'))
             ptr++;
 
         short count = 0;
 
-        while (ptr < end && *ptr != '}' && count < 16)
+        while (ptr < end && *ptr != '}' && count < max_properties)
         {
             // Skip whitespace and quotes
             while (ptr < end && (*ptr == ' ' || *ptr == '\"'))

@@ -10,6 +10,7 @@
 #include "cconartist/packet_pool.h"
 #include "cconartist/udp_send_pool.h"
 #include "cconartist/tcp_write_pool.h"
+#include "cconartist/decoder_plugins.h"
 
 #define INITIAL_CONN_CAPACITY 128
 #define PACKET_POOL_SIZE      1024
@@ -23,10 +24,11 @@ namespace ncore
         channel_t            *channel_packets_in;   // UI → Libuv
         connection_manager_t *conn_mgr;
         packet_pool_t        *packet_pool;
-        uv_async_t            async_send;       // NEW: async handle for sending packets
-        uv_udp_t              udp_send_handle;  // NEW: UDP handle for sending packets
+        uv_async_t            async_send;       // async handle for sending packets
+        uv_udp_t              udp_send_handle;  // UDP handle for sending packets
         udp_send_pool_t      *udp_send_pool;
         tcp_write_pool_t     *tcp_write_pool;
+        nplugins::registry_t  *decoder_registry;
     };
 
     void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
@@ -311,6 +313,7 @@ int main()
     ctx.packet_pool         = packet_pool;           // Packet pool
     ctx.udp_send_pool       = (udp_send_pool_t *)malloc(sizeof(udp_send_pool_t));
     ctx.tcp_write_pool      = (tcp_write_pool_t *)malloc(sizeof(tcp_write_pool_t));
+    ctx.decoder_registry    = nplugins::create_registry("./plugins", 64, loop);
 
     send_pool_init(ctx.udp_send_pool);
     write_pool_init(ctx.tcp_write_pool);
