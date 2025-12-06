@@ -7,20 +7,20 @@ namespace ncore
 {
     struct node_t
     {
-        void   *data;
-        node_t *next;
+        void   *m_data;
+        node_t *m_next;
     };
 
     struct channel_t
     {
-        uv_mutex_t mutex;
-        uv_cond_t  cond;
-        node_t    *head;
-        node_t    *tail;
-        node_t    *free_list;
-        node_t    *nodes;
-        size_t     size;
-        size_t     capacity;
+        uv_mutex_t m_mutex;
+        uv_cond_t  m_cond;
+        node_t    *m_head;
+        node_t    *m_tail;
+        node_t    *m_free_list;
+        node_t    *m_nodes;
+        size_t     m_size;
+        size_t     m_capacity;
     };
 
     int   channel_init(channel_t *ch, size_t capacity);

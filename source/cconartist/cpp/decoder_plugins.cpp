@@ -11,12 +11,12 @@ namespace ncore
     {
         struct registry_t
         {
-            plugin_t            *m_plugins;
-            u32                  m_plugin_count;
-            u32                  m_plugin_capacity;
-            char                 m_folder[256];
-            uv_loop_t           *m_loop;
-            uv_fs_event_t        m_fs_event;
+            plugin_t     *m_plugins;
+            u32           m_plugin_count;
+            u32           m_plugin_capacity;
+            char          m_folder[256];
+            uv_loop_t    *m_loop;
+            uv_fs_event_t m_fs_event;
         };
 
         static bool has_so_extension(const char *filename)
@@ -114,9 +114,9 @@ namespace ncore
                 return false;
             }
 
-            write_to_stream_fn write_to_stream = (write_to_stream_fn)dlsym(handle, "write_to_stream");
-            decode_ui_element_fn decode_ui_element = (decode_ui_element_fn)dlsym(handle, "decode_ui_element");
-            if (!write_to_stream || !decode_ui_element)
+            write_to_stream_fn  write_to_stream  = (write_to_stream_fn)dlsym(handle, "write_to_stream");
+            build_ui_element_fn build_ui_element = (build_ui_element_fn)dlsym(handle, "build_ui_element");
+            if (!write_to_stream || !build_ui_element)
             {
                 fprintf(stderr, "[Registry] Invalid plugin: %s\n", filename);
                 dlclose(handle);
@@ -132,9 +132,9 @@ namespace ncore
                 strncpy(p->m_name, filename, sizeof(p->m_name) - 1);
             }
 
-            p->m_write_to_stream_fn = write_to_stream;
-            p->m_decode_ui_element_fn = decode_ui_element;
-            p->m_dlhandle  = handle;
+            p->m_write_to_stream_fn  = write_to_stream;
+            p->m_build_ui_element_fn = build_ui_element;
+            p->m_dlhandle            = handle;
 
             return true;
         }

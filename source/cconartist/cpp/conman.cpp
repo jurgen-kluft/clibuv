@@ -11,26 +11,26 @@ namespace ncore
     // - remote_ip
     static int compare_key(connection_info_t *a, const connection_info_t *b)
     {
-        if (a->type < b->type)
+        if (a->m_type < b->m_type)
             return -1;
-        else if (a->type > b->type)
+        else if (a->m_type > b->m_type)
             return 1;
 
-        if (a->local_port < b->local_port)
+        if (a->m_local_port < b->m_local_port)
             return -1;
-        else if (a->local_port > b->local_port)
+        else if (a->m_local_port > b->m_local_port)
             return 1;
 
-        if (a->remote_port < b->remote_port)
+        if (a->m_remote_port < b->m_remote_port)
             return -1;
-        else if (a->remote_port > b->remote_port)
+        else if (a->m_remote_port > b->m_remote_port)
             return 1;
 
         for (int i = 0; i < 4; i++)
         {
-            if (a->remote_ip[i] != b->remote_ip[i])
+            if (a->m_remote_ip[i] != b->m_remote_ip[i])
             {
-                if (a->remote_ip[i] < b->remote_ip[i])
+                if (a->m_remote_ip[i] < b->m_remote_ip[i])
                     return -1;
                 else
                     return 1;
@@ -42,12 +42,12 @@ namespace ncore
 
     static ssize_t search_connection(connection_manager_t *mgr, connection_info_t *info, int *found)
     {
-        size_t left = 0, right = mgr->count;
+        size_t left = 0, right = mgr->m_count;
         *found = 0;
         while (left < right)
         {
             size_t mid = (left + right) / 2;
-            int    cmp = compare_key(info, mgr->connections[mid]);
+            int    cmp = compare_key(info, mgr->m_connections[mid]);
             if (cmp == 0)
             {
                 *found = 1;
@@ -63,35 +63,35 @@ namespace ncore
 
     int connection_manager_init(connection_manager_t *mgr, size_t initial_capacity)
     {
-        mgr->connections     = (connection_info_t **)calloc(initial_capacity, sizeof(connection_info_t *));
-        mgr->free_connection = NULL;
-        mgr->count           = 0;
-        mgr->capacity        = initial_capacity;
-        uv_mutex_init(&mgr->mutex);
+        mgr->m_connections     = (connection_info_t **)calloc(initial_capacity, sizeof(connection_info_t *));
+        mgr->m_free_connection = NULL;
+        mgr->m_count           = 0;
+        mgr->m_capacity        = initial_capacity;
+        uv_mutex_init(&mgr->m_mutex);
         return 0;
     }
 
     void connection_manager_destroy(connection_manager_t *mgr)
     {
-        uv_mutex_lock(&mgr->mutex);
-        for (int i = 0; i < mgr->count; i++)
-            free(mgr->connections[i]);
-        free(mgr->connections);
-        uv_mutex_unlock(&mgr->mutex);
-        uv_mutex_destroy(&mgr->mutex);
+        uv_mutex_lock(&mgr->m_mutex);
+        for (int i = 0; i < mgr->m_count; i++)
+            free(mgr->m_connections[i]);
+        free(mgr->m_connections);
+        uv_mutex_unlock(&mgr->m_mutex);
+        uv_mutex_destroy(&mgr->m_mutex);
     }
 
     connection_info_t *connection_manager_alloc(connection_manager_t *mgr)
     {
-        uv_mutex_lock(&mgr->mutex);
-        if (mgr->free_connection)
+        uv_mutex_lock(&mgr->m_mutex);
+        if (mgr->m_free_connection)
         {
-            connection_info_t *info = mgr->free_connection;
-            mgr->free_connection    = NULL;
-            uv_mutex_unlock(&mgr->mutex);
+            connection_info_t *info = mgr->m_free_connection;
+            mgr->m_free_connection  = NULL;
+            uv_mutex_unlock(&mgr->m_mutex);
             return info;
         }
-        uv_mutex_unlock(&mgr->mutex);
+        uv_mutex_unlock(&mgr->m_mutex);
         connection_info_t *info = (connection_info_t *)malloc(sizeof(connection_info_t));
         memset(info, 0, sizeof(connection_info_t));
         return info;
@@ -99,54 +99,54 @@ namespace ncore
 
     void connection_manager_release(connection_manager_t *mgr, connection_info_t *info)
     {
-        uv_mutex_lock(&mgr->mutex);
-        if (mgr->free_connection)
+        uv_mutex_lock(&mgr->m_mutex);
+        if (mgr->m_free_connection)
         {
-            free(mgr->free_connection);
+            free(mgr->m_free_connection);
         }
-        mgr->free_connection = info;
-        uv_mutex_unlock(&mgr->mutex);
+        mgr->m_free_connection = info;
+        uv_mutex_unlock(&mgr->m_mutex);
     }
 
     connection_info_t *connection_manager_commit(connection_manager_t *mgr, connection_info_t *info)
     {
-        uv_mutex_lock(&mgr->mutex);
+        uv_mutex_lock(&mgr->m_mutex);
         int     found;
         ssize_t idx = search_connection(mgr, info, &found);
         if (found)
         {
-            connection_info_t *existing = mgr->connections[idx];
+            connection_info_t *existing = mgr->m_connections[idx];
             connection_manager_release(mgr, info);
-            existing->state       = STATE_CONNECTED;
-            existing->last_active = uv_hrtime();
-            uv_mutex_unlock(&mgr->mutex);
+            existing->m_state       = STATE_CONNECTED;
+            existing->m_last_active = uv_hrtime();
+            uv_mutex_unlock(&mgr->m_mutex);
             return existing;
         }
-        if (mgr->count >= mgr->capacity)
+        if (mgr->m_count >= mgr->m_capacity)
         {
-            mgr->capacity *= 2;
-            mgr->connections = (connection_info_t **)realloc(mgr->connections, mgr->capacity * sizeof(connection_info_t *));
+            mgr->m_capacity *= 2;
+            mgr->m_connections = (connection_info_t **)realloc(mgr->m_connections, mgr->m_capacity * sizeof(connection_info_t *));
         }
-        info->last_active = uv_hrtime();
-        info->state       = STATE_CONNECTED;
-        memmove(&mgr->connections[idx + 1], &mgr->connections[idx], (mgr->count - idx) * sizeof(connection_info_t *));
-        mgr->connections[idx] = info;
-        mgr->count++;
-        uv_mutex_unlock(&mgr->mutex);
+        info->m_last_active = uv_hrtime();
+        info->m_state       = STATE_CONNECTED;
+        memmove(&mgr->m_connections[idx + 1], &mgr->m_connections[idx], (mgr->m_count - idx) * sizeof(connection_info_t *));
+        mgr->m_connections[idx] = info;
+        mgr->m_count++;
+        uv_mutex_unlock(&mgr->m_mutex);
         return info;
     }
 
     void connection_manager_mark_disconnected(connection_manager_t *mgr, connection_info_t *info)
     {
-        uv_mutex_lock(&mgr->mutex);
+        uv_mutex_lock(&mgr->m_mutex);
         int     found;
         ssize_t idx = search_connection(mgr, info, &found);
         if (found)
         {
-            mgr->connections[idx]->state       = STATE_DISCONNECTED;
-            mgr->connections[idx]->last_active = uv_hrtime();
+            mgr->m_connections[idx]->m_state       = STATE_DISCONNECTED;
+            mgr->m_connections[idx]->m_last_active = uv_hrtime();
         }
-        uv_mutex_unlock(&mgr->mutex);
+        uv_mutex_unlock(&mgr->m_mutex);
     }
 
 }  // namespace ncore

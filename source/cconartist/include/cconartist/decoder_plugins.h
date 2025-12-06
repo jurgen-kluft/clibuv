@@ -15,12 +15,10 @@ namespace ncore
     {
         struct plugin_t
         {
-            char                 m_name[256];
-            stream_alloc_fn      m_stream_alloc_fn;
-            write_to_stream_fn   m_write_to_stream_fn;
-            decode_ui_t         *m_decode_ui;
-            decode_ui_element_fn m_decode_ui_element_fn;
-            void                *m_dlhandle;
+            char                m_name[256];
+            write_to_stream_fn  m_write_to_stream_fn;
+            build_ui_element_fn m_build_ui_element_fn;
+            void               *m_dlhandle;
         };
 
         struct registry_t;

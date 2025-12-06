@@ -15,18 +15,18 @@ namespace ncore
 {
     typedef struct
     {
-        connection_info_t *conn;
-        size_t             size;
-        char               data[MAX_PACKET_SIZE];
+        connection_info_t *m_conn;
+        size_t             m_size;
+        char               m_data[MAX_PACKET_SIZE];
     } packet_t;
 
     typedef struct
     {
-        packet_t  *packets;
-        int16_t   *free_list;
-        int16_t    top;
-        size_t     capacity;
-        uv_mutex_t mutex;
+        packet_t  *m_packets;
+        int16_t   *m_free_list;
+        int16_t    m_top;
+        size_t     m_capacity;
+        uv_mutex_t m_mutex;
     } packet_pool_t;
 
     packet_pool_t *packet_pool_create(size_t pool_size);
