@@ -50,17 +50,11 @@ func GetPackage() *denv.Package {
 		testlib.AddLib("psapi", "user32", "advapi32", "iphlpapi", "userenv", "ws2_32", "dbghelp", "ole32", "shell32")
 	}
 
-	// cconartist project
-	cconartist := denv.SetupCppAppProjectForDesktop(mainpkg, "cconartist", "cconartist")
-	cconartist.AddDependencies(ccorepkg.GetMainLib())
-	cconartist.AddDependency(mainlib)
-
 	// unittest project
 	maintest := denv.SetupCppTestProject(mainpkg, name)
 	maintest.AddDependencies(cunittestpkg.GetMainLib())
 	maintest.AddDependency(testlib)
 
-	mainpkg.AddMainApp(cconartist)
 	mainpkg.AddMainLib(mainlib)
 	mainpkg.AddTestLib(testlib)
 	mainpkg.AddUnittest(maintest)
