@@ -1,7 +1,7 @@
 #ifndef __CCONARTIST_DECODER_UNITS_H__
 #define __CCONARTIST_DECODER_UNITS_H__
 
-enum EPropertyUnit
+enum EUnit
 {
     // Temperature (0–2)
     UTemperature = 0,
@@ -83,6 +83,7 @@ enum EPropertyUnit
     UOhm         = 87,
     UFarad       = 88,
     UHenry       = 89,
+    UdBm         = 90,  // Decibel-milliwatts (signal strength)
 
     // Frequency (93–96)
     UHertz     = 93,
@@ -105,9 +106,22 @@ enum EPropertyUnit
     UFaultNormal         = 112,
     UPresentAbsent       = 113,
     UDetectedNotDetected = 114,
-    UUnknown             = 115
+
+    // Sound
+    UDecibels = 116,
+
+    // Light
+    ULux     = 120,
+    UUvIndex = 121,
+
+    // Data
+    UBinaryData = 150,
+    UMacAddress = 151,
+
+    // Unknown / Undefined
+    UUnknown
 };
 
-const char* to_string(EPropertyUnit unit);
+const char* to_string(EUnit unit);
 
 #endif  // __CCONARTIST_DECODER_UNITS_H__

@@ -7,30 +7,20 @@
 
 #include "clibuv/uv.h"
 
+#include "cconartist/decoder_interface.h"
+
 namespace ncore
 {
     namespace nplugins
     {
-        typedef uint8_t       u8;
-        typedef uint32_t      u32;
-        typedef uint64_t      u64;
-        typedef unsigned char byte;
-
-        struct property_t
-        {
-            const char *m_name;
-            int         m_unit;
-            double      m_value;
-        };
-
-        typedef void *(*decoder_alloc_fn_t)(u32 size, u8 alignment);
-        typedef bool (*decoder_decode_fn_t)(const byte *data, u32 size, decoder_alloc_fn_t alloc_func, property_t *out_properties, u32 *out_property_count);
-
         struct plugin_t
         {
-            char                m_name[256];
-            decoder_decode_fn_t m_decode_fn;
-            void               *m_dlhandle;
+            char                 m_name[256];
+            stream_alloc_fn      m_stream_alloc_fn;
+            write_to_stream_fn   m_write_to_stream_fn;
+            decode_ui_t         *m_decode_ui;
+            decode_ui_element_fn m_decode_ui_element_fn;
+            void                *m_dlhandle;
         };
 
         struct registry_t;
@@ -40,7 +30,6 @@ namespace ncore
         bool        load_plugin(registry_t *registry, const char *filename);
         bool        unload_plugin(registry_t *registry, const char *filename);
         plugin_t   *find_plugin(registry_t *registry, const char *name);
-        void        update_plugins(plugin_t *plugins, u32 count);
     }  // namespace nplugins
 }  // namespace ncore
 

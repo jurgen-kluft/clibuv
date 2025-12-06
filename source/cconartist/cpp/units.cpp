@@ -57,6 +57,7 @@ static const char *sUnitsArray[] = {[UTemperature]         = "°C",
                                     [UOhm]                 = "Ω",
                                     [UFarad]               = "F",
                                     [UHenry]               = "H",
+                                    [UdBm]                 = "dBm",
                                     [UHertz]               = "Hz",
                                     [UKiloHertz]           = "kHz",
                                     [UMegaHertz]           = "MHz",
@@ -73,9 +74,14 @@ static const char *sUnitsArray[] = {[UTemperature]         = "°C",
                                     [UFaultNormal]         = "Fault/Normal",
                                     [UPresentAbsent]       = "Present/Absent",
                                     [UDetectedNotDetected] = "Detected/Not Detected",
+                                    [UDecibels]            = "dB",
+                                    [ULux]                 = "lux",
+                                    [UUvIndex]             = "UV Index",
+                                    [UBinaryData]          = "Data",
+                                    [UMacAddress]          = "",
                                     [UUnknown]             = "Unknown"};
 
-const char *to_string(EPropertyUnit unit)
+const char *to_string(EUnit unit)
 {
     const int unitMapSize = sizeof(sUnitsArray) / sizeof(sUnitsArray[0]);
     if (unit >= 0 && unit < unitMapSize && sUnitsArray[unit] != nullptr)

@@ -9,17 +9,29 @@ When `cconartist` is running and a plugin is added or updated, it is loaded dyna
 ## Example: A sensorpacket plugin
 
 The following command compiles a simple `sensorpacket` plugin into a dynamic library named `sensorpacket.dylib`.
+This plugin can be used to process incoming sensor data packets from TCP connections that are connected to the
+sensor server. Sensor packets are received and written directly to the memory mapped sensor stream.
 
 ##
-        clang -Wall -O2 -fPIC -dynamiclib sensorpacket.cpp -o sensorpacket.dylib
+        clang -Wall -O2 -fPIC -dynamiclib -I../include sensorpacket.cpp -o sensorpacket.dylib
 
+## Example: A imagepacket plugin
+
+The following command compiles a simple `imagepacket` plugin into a dynamic library named `imagepacket.dylib`.
+This plugin can be used to process incoming image data packets from TCP connections that are connected to the
+image server. Image packets are received and written directly to the memory mapped image stream.
+
+##
+        clang -Wall -O2 -fPIC -dynamiclib -I../include imagepacket.cpp -o imagepacket.dylib
 
 ## Example: A GeekOpen (JSON) plugin
 
-GeekOpen devices (wall panel light switches, etc..) can be configured to send JSON formatted data packets to a TCP server (IP and Port). The following command compiles a simple `geekopen` plugin into a dynamic library named `geekopen.dylib`.
+GeekOpen devices (wall panel light switches, etc..) can be configured to send JSON formatted data packets to a TCP server.
+JSON messages are received and written directly to the memory mapped GeekOpen JSON stream.
+The following command compiles a simple `geekopen` plugin into a dynamic library named `geekopen.dylib`.
 
 ##
-        clang -Wall -O2 -fPIC -dynamiclib geekopen.cpp -o geekopen.dylib
+        clang -Wall -O2 -fPIC -dynamiclib -I../include geekopen.cpp -o geekopen.dylib
 
 ## Notes
 

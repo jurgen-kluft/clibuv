@@ -1,8 +1,11 @@
 # ConArtist
 
 An application that can run multiple TCP and UDP servers and shows them in a graphical interface.
-It will also display incoming messages in real-time and supports a way to decode them using user-defined scripts.
+It will also display incoming messages in real-time and supports a way to write custom packet handlers.
 
-## Packet decoders
+A packet handler has to implement a C interface with two functions, one for streaming data to a memory stream and
+another one for building a UI element to show the parsed data in the GUI.
 
-Packet decoders are written in C/C++ and compiled as a shared library, you can see an example in `source/cconartist/plugins/example_decoder`.
+## Packets
+
+Packet handlers are written in C/C++ and compiled as a shared library, you can see an example in `source/cconartist/plugins/example_decoder`.

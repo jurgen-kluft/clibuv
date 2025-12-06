@@ -326,7 +326,14 @@ int main()
     uv_thread_t ui;
     uv_thread_create(&ui, ui_thread, &ctx);
 
-    int tcp_ports[] = {31330, 31372};
+    // TCP:31330 = GeekOpen
+    // TCP:31372 = SensorPacket
+    // TCP:31373 = ImagePacket
+
+    // UDP:31370 = SensorPacket
+    // UDP:31371 = DiscoveryPacket
+
+    int tcp_ports[] = {31330, 31372, 31373};
     int udp_ports[] = {31370, 31371};
 
     printf("Starting servers...\n");
